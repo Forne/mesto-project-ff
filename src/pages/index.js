@@ -13,11 +13,12 @@ const profileDescription = document.querySelector(".profile__description");
 // Для модальных окон
 const profileButton = document.querySelector(".profile__edit-button");
 const profileModal = document.querySelector(".popup_type_edit");
+const profileModalClose = profileModal.querySelector(".popup__close");
 const placeButton = document.querySelector(".profile__add-button");
 const placeModal = document.querySelector(".popup_type_new-card");
-const placesList = document.querySelector(".places__list");
+const placeModalClose = placeModal.querySelector(".popup__close");
 const imageModal = document.querySelector(".popup_type_image");
-const imageElement = imageModal.querySelector(".popup__image");
+const imageModalClose = imageModal.querySelector(".popup__close");
 
 // Отображение начальных карточек
 function renderPlaceList() {
@@ -32,7 +33,7 @@ function handleProfileFormSubmit(evt) {
   profileDescription.textContent =
     editProfileForm.elements["description"].value;
 
-  closeModal();
+  closeModal(profileModal);
 }
 
 // Обработчик формы создания места
@@ -44,36 +45,37 @@ function handlePlaceFormSubmit(evt) {
   addPlaceCard(name, link);
 
   newPlaceForm.reset();
-  closeModal();
+  closeModal(placeModal);
 }
 
-function initForm() {
-  newPlaceForm.addEventListener("submit", handlePlaceFormSubmit);
-  editProfileForm.addEventListener("submit", handleProfileFormSubmit);
+// Выводим карточки
+renderPlaceList();
+
+// Добавляем обработку формы
+newPlaceForm.addEventListener("submit", handlePlaceFormSubmit);
+editProfileForm.addEventListener("submit", handleProfileFormSubmit);
+
+profileButton.addEventListener("click", () => {
   editProfileForm.elements["name"].value = profileTitle.textContent;
   editProfileForm.elements["description"].value =
     profileDescription.textContent;
-}
+  openModal(profileModal);
+});
 
-function initModal() {
-  profileButton.addEventListener("click", () => {
-    openModal(profileModal);
-  });
+placeButton.addEventListener("click", () => {
+  newPlaceForm.reset();
+  openModal(placeModal);
+});
 
-  placeButton.addEventListener("click", () => {
-    newPlaceForm.reset();
-    openModal(placeModal);
-  });
+// Закрытие модальных окон по кнопке
+profileModalClose.addEventListener("click", () => {
+  closeModal(profileModal);
+});
 
-  placesList.addEventListener("click", (evt) => {
-    if (evt.target.classList.contains("card__image")) {
-      imageElement.src = evt.target.src;
-      imageElement.alt = evt.target.alt;
-      openModal(imageModal);
-    }
-  });
-}
+placeModalClose.addEventListener("click", () => {
+  closeModal(placeModal);
+});
 
-renderPlaceList();
-initForm();
-initModal();
+imageModalClose.addEventListener("click", () => {
+  closeModal(imageModal);
+});
