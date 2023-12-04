@@ -13,13 +13,13 @@ export function closeModal(modal) {
 
 function handleKeyboard(evt) {
   if (evt.key === "Escape") {
-    let modal = document.querySelector(".popup_is-opened");
+    const modal = document.querySelector(".popup_is-opened");
     closeModal(modal);
   }
 }
 
 function handleOverlay(evt) {
-  let modal = document.querySelector(".popup_is-opened");
+  const modal = document.querySelector(".popup_is-opened");
   if (evt.target === modal) {
     closeModal(modal);
   }
