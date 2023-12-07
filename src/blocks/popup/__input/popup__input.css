@@ -20,3 +20,13 @@
     line-height: 15px;
   }
 }
+
+.popup__input__error {
+  display: none;
+  color: red;
+  font-size: 14px;
+}
+
+.popup__input__error-active {
+  display: inline;
+}
