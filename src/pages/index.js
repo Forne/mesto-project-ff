@@ -9,13 +9,10 @@ import {
 } from "../components/api.js";
 import { addPlaceCard } from "../components/card.js";
 import { openModal, closeModal } from "../components/modal.js";
-import { Validation } from "../components/validation.js";
-
-const validation = new Validation();
+import { clearValidation, enableValidation } from "../components/validation.js";
 
 // Валидация
-// как мог, я незнаю как тут по другому
-validation.enableValidation({
+enableValidation({
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
@@ -30,22 +27,18 @@ const newPlaceForm = document.forms["new-place"];
 const updateAvatarForm = document.forms["update-avatar"];
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
-const profileImage = document.querySelector(".profile__image");
+const profileImageContainer = document.querySelector(".profile__image");
+const profileImage = document.querySelector(".profile__image__img");
 
 // Для модальных окон
 const profileButton = document.querySelector(".profile__edit-button");
 const profileModal = document.querySelector(".popup_type_edit");
-const profileModalClose = profileModal.querySelector(".popup__close");
 const profileFormButton = profileModal.querySelector(".popup__button");
 const placeButton = document.querySelector(".profile__add-button");
 const placeModal = document.querySelector(".popup_type_new-card");
-const placeModalClose = placeModal.querySelector(".popup__close");
 const placeFormButton = placeModal.querySelector(".popup__button");
 const avatarModal = document.querySelector(".popup_type_avatar");
-const avatarModalClose = avatarModal.querySelector(".popup__close");
 const avatarFormButton = avatarModal.querySelector(".popup__button");
-const imageModal = document.querySelector(".popup_type_image");
-const imageModalClose = imageModal.querySelector(".popup__close");
 
 // Отображение начальных карточек
 function render() {
@@ -54,7 +47,7 @@ function render() {
       profileTitle.textContent = res[0].name;
       profileDescription.textContent = res[0].about;
       profileImage.src = res[0].avatar;
-      res[1].map((item) => {
+      res[1].forEach((item) => {
         item.isOwner = res[0]._id === item.owner._id;
         item.isLiked = item.likes.some((like) => like._id === res[0]._id);
       });
@@ -104,12 +97,13 @@ function handlePlaceFormSubmit(evt) {
   const link = newPlaceForm.elements["link"].value;
   createCard(name, link)
     .then((res) => {
-      addPlaceCard(res.name, res.link);
+      res.isOwner = true;
+      addPlaceCard(res);
       newPlaceForm.reset();
       closeModal(placeModal);
     })
     .catch((err) => console.log(err))
-    .finally(() => (placeFormButton.textContent = "Сохранить"));
+    .finally(() => (placeFormButton.textContent = "Создать"));
 }
 
 // Добавляем обработку формы
@@ -122,33 +116,24 @@ profileButton.addEventListener("click", () => {
   editProfileForm.elements["name"].value = profileTitle.textContent;
   editProfileForm.elements["description"].value =
     profileDescription.textContent;
-  validation.clearValidation(editProfileForm);
+  clearValidation(editProfileForm);
   openModal(profileModal);
 });
 
 placeButton.addEventListener("click", () => {
   newPlaceForm.reset();
+  clearValidation(newPlaceForm);
   openModal(placeModal);
 });
 
-profileImage.addEventListener("click", () => {
+profileImageContainer.addEventListener("click", () => {
   updateAvatarForm.reset();
+  clearValidation(updateAvatarForm);
   openModal(avatarModal);
 });
 
 // Закрытие модальных окон по кнопке
-profileModalClose.addEventListener("click", () => {
-  closeModal(profileModal);
-});
-
-avatarModalClose.addEventListener("click", () => {
-  closeModal(avatarModal);
-});
-
-placeModalClose.addEventListener("click", () => {
-  closeModal(placeModal);
-});
-
-imageModalClose.addEventListener("click", () => {
-  closeModal(imageModal);
+document.querySelectorAll(".popup__close").forEach((button) => {
+  const buttonPopup = button.closest(".popup");
+  button.addEventListener("click", () => closeModal(buttonPopup));
 });

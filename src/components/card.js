@@ -22,39 +22,39 @@ function createPlaceCard(
   element.querySelector(".card__title").textContent = card.name;
 
   const image = element.querySelector(".card__image");
+  const likeButton = element.querySelector(".card__like-button");
+  const likeCount = element.querySelector(".card__like-count");
+
   image.src = card.link;
   image.alt = `На изображении ${card.name}.`;
 
-  element.dataset.id = card._id;
-
-  // Проверка на лайк
-  if (card.isLiked) {
-    const like = element.querySelector(".card__like-button");
-    like.classList.add("card__like-button_is-active");
-  }
-
-  element.querySelector(".card__like-count").textContent = card.likes.length;
+  likeCount.textContent = card.likes.length;
 
   // Удаление кнопки если не владелец
   const button = element.querySelector(".card__delete-button");
   if (card.isOwner) {
-    button.addEventListener("click", removeCardHandler);
+    button.addEventListener("click", () =>
+      removeCardHandler(card._id, element)
+    );
   } else {
     button.remove();
   }
 
-  element
-    .querySelector(".card__like-button")
-    .addEventListener("click", likeCardHandler);
+  // Проверка на лайк
+  if (card.isLiked) {
+    likeButton.classList.add("card__like-button_is-active");
+  }
 
-  element
-    .querySelector(".card__image")
-    .addEventListener("click", popupCardHandler);
+  likeButton.addEventListener("click", () =>
+    likeCardHandler(card._id, likeCount, likeButton)
+  );
+
+  image.addEventListener("click", () => popupCardHandler(card.name, card.link));
 
   return element;
 }
 
-// Внешний функция добовления карточки
+// Внешняя функция добовления карточки
 export function addPlaceCard(card) {
   placeList.prepend(
     createPlaceCard(card, removePlaceCard, likeHandler, popupHandler)
@@ -62,11 +62,11 @@ export function addPlaceCard(card) {
 }
 
 // Обработчик удаления карточки
-function removePlaceCard(evt) {
-  const cardId = evt.target.parentElement.dataset.id;
-  removeCard(cardId)
+function removePlaceCard(id, element) {
+  // element.remove();
+  removeCard(id)
     .then(() => {
-      evt.target.parentElement.remove();
+      element.remove();
     })
     .catch((err) => {
       console.log(err);
@@ -74,23 +74,19 @@ function removePlaceCard(evt) {
 }
 
 // Обработчик лайка
-function likeHandler(evt) {
-  const cardId =
-    evt.target.parentElement.parentElement.parentElement.dataset.id;
-  const isLiked = evt.target.classList.contains("card__like-button_is-active");
-  const count = evt.target.parentElement.querySelector(".card__like-count");
+function likeHandler(id, count, button) {
+  const isLiked = button.classList.contains("card__like-button_is-active");
   if (isLiked) {
-    unlikeCard(cardId)
+    unlikeCard(id)
       .then((res) => {
-        evt.target.classList.remove("card__like-button_is-active");
-        console.log(res.likes);
+        button.classList.remove("card__like-button_is-active");
         count.textContent = res.likes.length;
       })
       .catch((err) => console.log(err));
   } else {
-    likeCard(cardId)
+    likeCard(id)
       .then((res) => {
-        evt.target.classList.add("card__like-button_is-active");
+        button.classList.add("card__like-button_is-active");
         count.textContent = res.likes.length;
       })
       .catch((err) => console.log(err));
@@ -98,9 +94,9 @@ function likeHandler(evt) {
 }
 
 // Обработчик popup
-function popupHandler(evt) {
-  imageModalImage.src = evt.target.src;
-  imageModalImage.alt = evt.target.alt;
-  imageModalCaption.textContent = evt.target.alt;
+function popupHandler(name, link) {
+  imageModalImage.src = link;
+  imageModalImage.alt = name;
+  imageModalCaption.textContent = name;
   openModal(imageModal);
 }

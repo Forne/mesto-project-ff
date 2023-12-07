@@ -1,7 +1,7 @@
 const config = {
   baseUrl: "https://nomoreparties.co/v1/cohort-magistr-2",
   headers: {
-    authorization: "",
+    authorization: "2fbbfedf-b1b4-413e-af11-8215121260bb",
     "Content-Type": "application/json",
   },
 };
